@@ -1,0 +1,12 @@
+<UserControl x:Class="MatnMemorization.Presentation.Wpf.Views.ImportView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FlowDirection="RightToLeft">
+    <Grid>
+        <TextBlock Text="استيراد متن"
+                   FontSize="24"
+                   FontFamily="Noto Naskh Arabic, Segoe UI, Arial"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center" />
+    </Grid>
+</UserControl>

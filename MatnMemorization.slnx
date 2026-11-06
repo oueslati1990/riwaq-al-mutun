@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/MatnMemorization.Application/MatnMemorization.Application.csproj" />
+    <Project Path="src/MatnMemorization.Domain/MatnMemorization.Domain.csproj" />
+    <Project Path="src/MatnMemorization.Infrastructure/MatnMemorization.Infrastructure.csproj" />
+    <Project Path="src/MatnMemorization.Presentation.Wpf/MatnMemorization.Presentation.Wpf.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/MatnMemorization.Application.Tests/MatnMemorization.Application.Tests.csproj" />
+    <Project Path="tests/MatnMemorization.Domain.Tests/MatnMemorization.Domain.Tests.csproj" />
+    <Project Path="tests/MatnMemorization.Infrastructure.Tests/MatnMemorization.Infrastructure.Tests.csproj" />
+  </Folder>
+</Solution>
