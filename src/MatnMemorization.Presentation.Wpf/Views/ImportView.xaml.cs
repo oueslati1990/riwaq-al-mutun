@@ -4,8 +4,5 @@ namespace MatnMemorization.Presentation.Wpf.Views;
 
 public partial class ImportView : UserControl
 {
-    public ImportView()
-    {
-        InitializeComponent();
-    }
+    public ImportView() => InitializeComponent();
 }

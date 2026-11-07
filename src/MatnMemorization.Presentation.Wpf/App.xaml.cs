@@ -1,10 +1,16 @@
 ﻿using System.IO;
 using System.Windows;
 using MatnMemorization.Application.Contracts.Navigation;
+using MatnMemorization.Application.Contracts.Ocr;
+using MatnMemorization.Application.Contracts.Pdf;
 using MatnMemorization.Application.Contracts.Repositories;
+using MatnMemorization.Application.Contracts.UI;
+using MatnMemorization.Application.UseCases.Import;
 using MatnMemorization.Application.UseCases.Matns;
 using MatnMemorization.Application.UseCases.Sections;
 using MatnMemorization.Application.UseCases.TextUnits;
+using MatnMemorization.Infrastructure.Ocr;
+using MatnMemorization.Infrastructure.Pdf;
 using MatnMemorization.Infrastructure.Persistence;
 using MatnMemorization.Infrastructure.Persistence.Repositories;
 using MatnMemorization.Presentation.Wpf.Services;
@@ -57,6 +63,7 @@ public partial class App : System.Windows.Application
 
                 services.AddDbContext<AppDbContext>(o => o.UseSqlite(connectionString));
                 RegisterRepositories(services);
+                RegisterOcrServices(services);
                 RegisterViewModels(services);
                 RegisterViews(services);
                 RegisterNavigation(services);
@@ -127,6 +134,20 @@ public partial class App : System.Windows.Application
         services.AddScoped<GetMatnDetailHandler>();
         services.AddScoped<AddSectionHandler>();
         services.AddScoped<AddTextUnitHandler>();
+        services.AddScoped<ImportMatnFromOcrHandler>();
+    }
+
+    private static void RegisterOcrServices(IServiceCollection services)
+    {
+        services.Configure<TesseractOptions>(opts =>
+        {
+            opts.TessDataPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "tessdata");
+            opts.Language = "ara";
+        });
+        services.AddSingleton<IOcrService, TesseractOcrService>();
+        services.AddSingleton<IPdfService, DocnetPdfService>();
+        services.AddSingleton<IFileDialogService, FileDialogService>();
+        services.AddSingleton<OcrSessionStore>();
     }
 
     private static void RegisterNavigation(IServiceCollection services)

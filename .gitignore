@@ -34,3 +34,8 @@ Thumbs.db
 
 # Spec-kit local state
 .specify/.cache/
+
+# Tesseract trained data (large binaries — download separately)
+tessdata/*.traineddata
+# Pdfium native DLLs (shipped by Docnet.Core NuGet)
+*.pdfium*
