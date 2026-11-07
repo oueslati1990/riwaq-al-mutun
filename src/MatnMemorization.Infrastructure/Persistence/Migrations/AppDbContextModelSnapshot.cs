@@ -84,6 +84,55 @@ partial class AppDbContextModelSnapshot : ModelSnapshot
         {
             b.Navigation("TextUnits");
         });
+
+        modelBuilder.Entity("MatnMemorization.Domain.Entities.MemorizationProgress", b =>
+        {
+            b.Property<Guid>("Id").ValueGeneratedOnAdd().HasColumnType("TEXT");
+            b.Property<Guid>("TextUnitId").HasColumnType("TEXT");
+            b.Property<double>("EaseFactor").HasDefaultValue(2.5).HasColumnType("REAL");
+            b.Property<int>("Interval").HasDefaultValue(0).HasColumnType("INTEGER");
+            b.Property<int>("ReviewCount").HasDefaultValue(0).HasColumnType("INTEGER");
+            b.Property<DateOnly?>("NextReviewDate").HasColumnType("TEXT");
+            b.Property<DateTimeOffset?>("LastReviewedAt").HasColumnType("TEXT");
+            b.HasKey("Id");
+            b.HasIndex("TextUnitId").IsUnique();
+            b.HasIndex("NextReviewDate");
+            b.ToTable("MemorizationProgresses");
+        });
+
+        modelBuilder.Entity("MatnMemorization.Domain.Entities.ReviewAttempt", b =>
+        {
+            b.Property<Guid>("Id").ValueGeneratedOnAdd().HasColumnType("TEXT");
+            b.Property<Guid>("MemorizationProgressId").HasColumnType("TEXT");
+            b.Property<int>("Quality").HasColumnType("INTEGER");
+            b.Property<DateTimeOffset>("ReviewedAt").HasColumnType("TEXT");
+            b.HasKey("Id");
+            b.HasIndex("MemorizationProgressId");
+            b.ToTable("ReviewAttempts");
+        });
+
+        modelBuilder.Entity("MatnMemorization.Domain.Entities.MemorizationProgress", b =>
+        {
+            b.HasOne("MatnMemorization.Domain.Entities.TextUnit", null)
+             .WithMany()
+             .HasForeignKey("TextUnitId")
+             .OnDelete(DeleteBehavior.Cascade)
+             .IsRequired();
+        });
+
+        modelBuilder.Entity("MatnMemorization.Domain.Entities.ReviewAttempt", b =>
+        {
+            b.HasOne("MatnMemorization.Domain.Entities.MemorizationProgress", null)
+             .WithMany("Attempts")
+             .HasForeignKey("MemorizationProgressId")
+             .OnDelete(DeleteBehavior.Cascade)
+             .IsRequired();
+        });
+
+        modelBuilder.Entity("MatnMemorization.Domain.Entities.MemorizationProgress", b =>
+        {
+            b.Navigation("Attempts");
+        });
 #pragma warning restore 612, 618
     }
 }

@@ -8,6 +8,8 @@ public class AppDbContext : DbContext
     public DbSet<Matn> Matns => Set<Matn>();
     public DbSet<MatnSection> MatnSections => Set<MatnSection>();
     public DbSet<TextUnit> TextUnits => Set<TextUnit>();
+    public DbSet<MemorizationProgress> MemorizationProgresses => Set<MemorizationProgress>();
+    public DbSet<ReviewAttempt> ReviewAttempts => Set<ReviewAttempt>();
 
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {

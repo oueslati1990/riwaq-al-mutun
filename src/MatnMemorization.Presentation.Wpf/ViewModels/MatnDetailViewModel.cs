@@ -1,6 +1,6 @@
-using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MatnMemorization.Application.Contracts.Navigation;
 using MatnMemorization.Application.UseCases.Matns;
 using MatnMemorization.Application.UseCases.Sections;
 using MatnMemorization.Application.UseCases.TextUnits;
@@ -15,6 +15,7 @@ public partial class MatnDetailViewModel : ViewModelBase
     private readonly AddSectionHandler _addSection;
     private readonly AddTextUnitHandler _addUnit;
     private readonly MatnSelectionService _selection;
+    private readonly INavigationService _navigation;
 
     [ObservableProperty]
     private Matn? _matn;
@@ -46,12 +47,21 @@ public partial class MatnDetailViewModel : ViewModelBase
         GetMatnDetailHandler getDetail,
         AddSectionHandler addSection,
         AddTextUnitHandler addUnit,
-        MatnSelectionService selection)
+        MatnSelectionService selection,
+        INavigationService navigation)
     {
         _getDetail = getDetail;
         _addSection = addSection;
         _addUnit = addUnit;
         _selection = selection;
+        _navigation = navigation;
+    }
+
+    [RelayCommand]
+    private void StartSession()
+    {
+        if (_selection.SelectedMatnId is null) return;
+        _navigation.NavigateTo<MemorizationViewModel>();
     }
 
     [RelayCommand]

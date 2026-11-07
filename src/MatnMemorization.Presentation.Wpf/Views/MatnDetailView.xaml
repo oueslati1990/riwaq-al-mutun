@@ -27,10 +27,15 @@
                 <TextBlock Text="{Binding Matn.Title}" FontSize="22" FontWeight="Bold" />
                 <TextBlock Text="{Binding Matn.Author}" FontSize="14" Foreground="#666" />
             </StackPanel>
-            <Button Grid.Column="1"
-                    Content="+ إضافة باب"
-                    Command="{Binding OpenAddSectionCommand}"
-                    Padding="12,6" FontSize="14" VerticalAlignment="Top" />
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top">
+                <Button Content="▶ بدء الحفظ"
+                        Command="{Binding StartSessionCommand}"
+                        Padding="12,6" FontSize="14" Margin="0,0,8,0"
+                        Background="#2E7D32" Foreground="White" />
+                <Button Content="+ إضافة باب"
+                        Command="{Binding OpenAddSectionCommand}"
+                        Padding="12,6" FontSize="14" />
+            </StackPanel>
         </Grid>
 
         <!-- Error -->

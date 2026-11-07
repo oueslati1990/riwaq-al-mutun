@@ -8,6 +8,7 @@ using MatnMemorization.Application.Contracts.UI;
 using MatnMemorization.Application.UseCases.Import;
 using MatnMemorization.Application.UseCases.Matns;
 using MatnMemorization.Application.UseCases.Sections;
+using MatnMemorization.Application.UseCases.Sessions;
 using MatnMemorization.Application.UseCases.TextUnits;
 using MatnMemorization.Infrastructure.Ocr;
 using MatnMemorization.Infrastructure.Pdf;
@@ -127,6 +128,7 @@ public partial class App : System.Windows.Application
         services.AddScoped<IMatnRepository, MatnRepository>();
         services.AddScoped<IMatnSectionRepository, MatnSectionRepository>();
         services.AddScoped<ITextUnitRepository, TextUnitRepository>();
+        services.AddScoped<IMemorizationProgressRepository, MemorizationProgressRepository>();
         services.AddScoped<CreateMatnHandler>();
         services.AddScoped<UpdateMatnHandler>();
         services.AddScoped<SoftDeleteMatnHandler>();
@@ -135,6 +137,8 @@ public partial class App : System.Windows.Application
         services.AddScoped<AddSectionHandler>();
         services.AddScoped<AddTextUnitHandler>();
         services.AddScoped<ImportMatnFromOcrHandler>();
+        services.AddScoped<StartSessionHandler>();
+        services.AddScoped<RecordAttemptHandler>();
     }
 
     private static void RegisterOcrServices(IServiceCollection services)

@@ -6,5 +6,6 @@
         <conv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
         <conv:NullToCollapsedConverter x:Key="NullToCollapsedConverter" />
         <conv:InvertBoolConverter x:Key="InvertBoolConverter" />
+        <conv:InvertBoolToVisibilityConverter x:Key="InvertBoolToVisibilityConverter" />
     </Application.Resources>
 </Application>
