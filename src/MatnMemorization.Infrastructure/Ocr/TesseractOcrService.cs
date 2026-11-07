@@ -1,4 +1,5 @@
 using MatnMemorization.Application.Contracts.Ocr;
+using MatnMemorization.Application.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Tesseract;
@@ -29,7 +30,7 @@ public sealed class TesseractOcrService : IOcrService, IDisposable
         _engine.DefaultPageSegMode = PageSegMode.Auto;
     }
 
-    public async Task<string> RecognizeAsync(byte[] imageBytes, CancellationToken ct = default)
+    public async Task<OcrResult> RecognizeAsync(byte[] imageBytes, CancellationToken ct = default)
     {
         await _lock.WaitAsync(ct);
         try
@@ -38,9 +39,10 @@ public sealed class TesseractOcrService : IOcrService, IDisposable
             {
                 using var pix = Pix.LoadFromMemory(imageBytes);
                 using var page = _engine.Process(pix);
-                var text = page.GetText();
-                _logger.LogDebug("OCR confidence: {Confidence:F1}%", page.GetMeanConfidence() * 100);
-                return text ?? string.Empty;
+                var text = page.GetText() ?? string.Empty;
+                var confidence = page.GetMeanConfidence();
+                _logger.LogDebug("OCR confidence: {Confidence:F1}%", confidence * 100);
+                return new OcrResult(text, confidence);
             }, ct);
         }
         finally

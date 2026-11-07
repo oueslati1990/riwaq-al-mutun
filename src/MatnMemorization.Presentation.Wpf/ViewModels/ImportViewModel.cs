@@ -115,19 +115,14 @@ public partial class ImportViewModel : ViewModelBase
             throw new InvalidOperationException($"عدد الصفحات ({total}) يتجاوز الحد الأقصى ({MaxPages}).");
 
         var results = new List<OcrPageResult>(total);
-        var prog = new Progress<int>(p =>
-        {
-            Progress = p;
-            StatusMessage = $"جارٍ التعرف على الصفحة {p * total / 100 + 1} من {total}...";
-        });
 
         for (int i = 0; i < total; i++)
         {
             ct.ThrowIfCancellationRequested();
             StatusMessage = $"صفحة {i + 1} من {total}...";
             var png = await _pdfService.RenderPageAsync(path, i, 300, ct);
-            var text = await _ocrService.RecognizeAsync(png, ct);
-            results.Add(OcrPageResult.From(i + 1, text));
+            var ocrResult = await _ocrService.RecognizeAsync(png, ct);
+            results.Add(OcrPageResult.From(i + 1, ocrResult.Text, ocrResult.Confidence, png));
             Progress = (i + 1) * 100 / total;
         }
 
@@ -138,8 +133,8 @@ public partial class ImportViewModel : ViewModelBase
     {
         StatusMessage = "جارٍ التعرف على الصورة...";
         var bytes = await File.ReadAllBytesAsync(path, ct);
-        var text = await _ocrService.RecognizeAsync(bytes, ct);
+        var ocrResult = await _ocrService.RecognizeAsync(bytes, ct);
         Progress = 100;
-        return [OcrPageResult.From(1, text)];
+        return [OcrPageResult.From(1, ocrResult.Text, ocrResult.Confidence, bytes)];
     }
 }

@@ -8,6 +8,15 @@
              d:DataContext="{d:DesignInstance vm:OcrReviewViewModel}"
              FlowDirection="RightToLeft"
              FontFamily="Noto Naskh Arabic, Segoe UI, Arial">
+
+    <UserControl.Resources>
+        <!-- Status dot colors -->
+        <SolidColorBrush x:Key="StatusPending"    Color="#BBBBBB" />
+        <SolidColorBrush x:Key="StatusNeedsReview" Color="#E8A020" />
+        <SolidColorBrush x:Key="StatusApproved"   Color="#2E9B45" />
+        <SolidColorBrush x:Key="LowConfidenceColor" Color="#C0392B" />
+    </UserControl.Resources>
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -16,8 +25,8 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <!-- Header + action buttons -->
-        <Grid Grid.Row="0" Margin="12,12,12,8">
+        <!-- Header toolbar -->
+        <Grid Grid.Row="0" Margin="10,10,10,6">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
@@ -25,73 +34,190 @@
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <TextBlock Grid.Column="0" Text="مراجعة نتائج OCR" FontSize="20" FontWeight="Bold" VerticalAlignment="Center" />
-            <Button Grid.Column="1" Content="اعتماد الكل" Command="{Binding ApproveAllCommand}" Padding="12,6" Margin="0,0,8,0" />
-            <Button Grid.Column="2" Content="اعتماد الصفحة" Command="{Binding ApprovePageCommand}" CommandParameter="{Binding SelectedPage}" Padding="12,6" Margin="0,0,8,0" />
-            <Button Grid.Column="3" Content="حفظ وإنشاء المتن" Command="{Binding OpenImportDialogCommand}" Padding="14,6" FontWeight="SemiBold" />
+            <Button Grid.Column="1" Content="اعتماد الكل" Command="{Binding ApproveAllCommand}"
+                    Padding="12,6" Margin="0,0,8,0" />
+            <Button Grid.Column="2" Content="اعتماد الصفحة"
+                    Command="{Binding ApprovePageCommand}"
+                    CommandParameter="{Binding SelectedPage}"
+                    Padding="12,6" Margin="0,0,8,0" />
+            <Button Grid.Column="3" Content="حفظ وإنشاء المتن"
+                    Command="{Binding OpenImportDialogCommand}"
+                    FontWeight="SemiBold" Padding="14,6" />
         </Grid>
 
-        <!-- Error -->
+        <!-- Error bar -->
         <TextBlock Grid.Row="1" Text="{Binding ErrorMessage}" Foreground="Red"
                    Visibility="{Binding ErrorMessage, Converter={StaticResource NullToCollapsedConverter}}"
-                   Margin="12,0,12,4" />
+                   Margin="10,0,10,4" />
 
-        <!-- Main content: pages list + text editor -->
+        <!-- Main 3-column layout -->
         <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="200" />
+                <ColumnDefinition Width="165" MinWidth="120" />
+                <ColumnDefinition Width="4" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
             <!-- Pages list -->
-            <Border Grid.Column="0" BorderBrush="#DDDDDD" BorderThickness="0,0,1,0">
-                <ListBox ItemsSource="{Binding Pages}"
-                         SelectedItem="{Binding SelectedPage}"
-                         BorderThickness="0">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <Grid Margin="6,4">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="{Binding PageNumber, StringFormat='صفحة {0}'}" FontSize="14" VerticalAlignment="Center" />
-                                <TextBlock Grid.Column="1" Text="✓" Foreground="Green" FontSize="14"
-                                           Visibility="{Binding IsApproved, Converter={StaticResource BoolToVisibilityConverter}}" />
-                            </Grid>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
-            </Border>
+            <ListBox Grid.Column="0"
+                     ItemsSource="{Binding Pages}"
+                     SelectedItem="{Binding SelectedPage}"
+                     BorderThickness="0,0,1,0"
+                     BorderBrush="#DDDDDD">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Margin="6,5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="10" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
 
-            <!-- Text editor -->
-            <Grid Grid.Column="1" Margin="12,0,12,0">
+                            <!-- Status dot -->
+                            <Ellipse Grid.Column="0" Width="8" Height="8" VerticalAlignment="Center">
+                                <Ellipse.Style>
+                                    <Style TargetType="Ellipse">
+                                        <Setter Property="Fill" Value="{StaticResource StatusNeedsReview}" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Status}" Value="Pending">
+                                                <Setter Property="Fill" Value="{StaticResource StatusPending}" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Status}" Value="Approved">
+                                                <Setter Property="Fill" Value="{StaticResource StatusApproved}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Ellipse.Style>
+                            </Ellipse>
+
+                            <!-- Page number + confidence -->
+                            <StackPanel Grid.Column="1" Margin="6,0,0,0">
+                                <TextBlock Text="{Binding PageNumber, StringFormat='صفحة {0}'}" FontSize="13" />
+                                <TextBlock FontSize="11" Margin="0,1,0,0">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Foreground" Value="#666" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsLowConfidence}" Value="True">
+                                                    <Setter Property="Foreground" Value="{StaticResource LowConfidenceColor}" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                    <Run Text="{Binding ConfidencePercent, StringFormat='{}{0}%'}" />
+                                </TextBlock>
+                            </StackPanel>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+            <GridSplitter Grid.Column="1" Width="4" HorizontalAlignment="Stretch" ResizeBehavior="PreviousAndNext" />
+
+            <!-- Right panel: image on top, editor below -->
+            <Grid Grid.Column="2">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="300" MinHeight="80" />
+                    <RowDefinition Height="5" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
-                <TextBlock Grid.Row="0"
-                           Text="{Binding SelectedPage.PageNumber, StringFormat='تحرير الصفحة {0}'}"
-                           FontSize="15" FontWeight="SemiBold" Margin="0,0,0,6"
-                           Visibility="{Binding SelectedPage, Converter={StaticResource NullToCollapsedConverter}}" />
-                <TextBox Grid.Row="1"
-                         Text="{Binding SelectedPage.EditedText, UpdateSourceTrigger=PropertyChanged}"
-                         FontSize="17"
-                         AcceptsReturn="True"
-                         TextWrapping="Wrap"
-                         VerticalScrollBarVisibility="Auto"
-                         FontFamily="Noto Naskh Arabic, Arial"
-                         IsEnabled="{Binding SelectedPage, Converter={StaticResource NullToCollapsedConverter}}" />
+
+                <!-- Page image preview -->
+                <ScrollViewer Grid.Row="0"
+                              HorizontalScrollBarVisibility="Auto"
+                              VerticalScrollBarVisibility="Auto"
+                              Background="#F0F0F0">
+                    <Image Source="{Binding SelectedPage.PageImage}"
+                           Stretch="Uniform"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Top"
+                           Margin="4" />
+                </ScrollViewer>
+
+                <GridSplitter Grid.Row="1" Height="5" HorizontalAlignment="Stretch" ResizeBehavior="PreviousAndNext" />
+
+                <!-- Text editor -->
+                <Grid Grid.Row="2" Margin="8,4,8,8">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,4"
+                                Visibility="{Binding SelectedPage, Converter={StaticResource NullToCollapsedConverter}}">
+                        <TextBlock Text="{Binding SelectedPage.PageNumber, StringFormat='تحرير الصفحة {0}'}"
+                                   FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center" />
+                        <TextBlock Margin="12,0,0,0" FontSize="12" VerticalAlignment="Center">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Foreground" Value="{StaticResource StatusNeedsReview}" />
+                                    <Setter Property="Text" Value="⬤ تحتاج مراجعة" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SelectedPage.Status}" Value="Approved">
+                                            <Setter Property="Foreground" Value="{StaticResource StatusApproved}" />
+                                            <Setter Property="Text" Value="⬤ معتمدة" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding SelectedPage.Status}" Value="Pending">
+                                            <Setter Property="Foreground" Value="{StaticResource StatusPending}" />
+                                            <Setter Property="Text" Value="⬤ معلقة" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                        <TextBlock Margin="10,0,0,0" FontSize="11" VerticalAlignment="Center"
+                                   Foreground="{StaticResource LowConfidenceColor}"
+                                   Visibility="{Binding SelectedPage.IsLowConfidence, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <Run Text="⚠ ثقة منخفضة (" />
+                            <Run Text="{Binding SelectedPage.ConfidencePercent, StringFormat='{}{0}%'}" />
+                            <Run Text=")" />
+                        </TextBlock>
+                    </StackPanel>
+                    <TextBox Grid.Row="1"
+                             Text="{Binding SelectedPage.EditedText, UpdateSourceTrigger=PropertyChanged}"
+                             FontSize="17"
+                             FontFamily="Noto Naskh Arabic, Arial"
+                             AcceptsReturn="True"
+                             TextWrapping="Wrap"
+                             VerticalScrollBarVisibility="Auto"
+                             IsEnabled="{Binding SelectedPage, Converter={StaticResource NullToCollapsedConverter}}"
+                             GotFocus="TextEditor_GotFocus" />
+                </Grid>
             </Grid>
         </Grid>
 
-        <!-- Bottom status bar -->
-        <StatusBar Grid.Row="3" Height="28">
+        <!-- Status bar -->
+        <StatusBar Grid.Row="3" Height="26">
             <StatusBarItem>
-                <TextBlock Text="{Binding Pages.Count, StringFormat='عدد الصفحات: {0}'}" FontSize="12" />
+                <TextBlock Text="{Binding Pages.Count, StringFormat='صفحات: {0}'}" FontSize="11" />
+            </StatusBarItem>
+            <Separator />
+            <StatusBarItem>
+                <TextBlock FontSize="11">
+                    <Run Text="معتمدة: " />
+                    <Run Text="{Binding Pages.Count, Mode=OneWay}" />
+                </TextBlock>
             </StatusBarItem>
         </StatusBar>
 
-        <!-- Import dialog overlay -->
+        <!-- Re-edit confirmation dialog -->
+        <Grid Grid.RowSpan="4"
+              Visibility="{Binding IsReEditConfirmOpen, Converter={StaticResource BoolToVisibilityConverter}}"
+              Background="#80000000">
+            <Border Background="White" CornerRadius="8" Padding="24"
+                    MaxWidth="380" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <StackPanel>
+                    <TextBlock Text="تعديل نص معتمد" FontSize="17" FontWeight="Bold" Margin="0,0,0,12" />
+                    <TextBlock Text="هذه الصفحة معتمدة. تعديلها سيعيدها إلى حالة &quot;تحتاج مراجعة&quot;. هل تريد المتابعة؟"
+                               TextWrapping="Wrap" Margin="0,0,0,16" FontSize="14" />
+                    <StackPanel Orientation="Horizontal">
+                        <Button Content="تعديل" Command="{Binding ConfirmReEditCommand}" Padding="16,8" Margin="0,0,8,0" />
+                        <Button Content="إلغاء" Command="{Binding CancelReEditCommand}" Padding="14,8" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- Import dialog -->
         <Grid Grid.RowSpan="4"
               Visibility="{Binding IsImportDialogOpen, Converter={StaticResource BoolToVisibilityConverter}}"
               Background="#80000000">
@@ -109,13 +235,10 @@
                                Visibility="{Binding ErrorMessage, Converter={StaticResource NullToCollapsedConverter}}"
                                Margin="0,0,0,8" />
                     <StackPanel Orientation="Horizontal">
-                        <Button Content="حفظ"
-                                Command="{Binding ConfirmImportCommand}"
+                        <Button Content="حفظ" Command="{Binding ConfirmImportCommand}"
                                 IsEnabled="{Binding IsImporting, Converter={StaticResource InvertBoolConverter}}"
                                 Padding="18,8" Margin="0,0,8,0" />
-                        <Button Content="إلغاء"
-                                Command="{Binding CancelImportCommand}"
-                                Padding="14,8" />
+                        <Button Content="إلغاء" Command="{Binding CancelImportCommand}" Padding="14,8" />
                     </StackPanel>
                 </StackPanel>
             </Border>

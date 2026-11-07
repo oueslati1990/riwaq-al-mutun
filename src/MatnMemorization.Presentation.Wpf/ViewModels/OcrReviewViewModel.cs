@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MatnMemorization.Application.Contracts.Navigation;
+using MatnMemorization.Application.Models;
 using MatnMemorization.Application.UseCases.Import;
 using MatnMemorization.Presentation.Wpf.Services;
 
@@ -18,10 +19,13 @@ public partial class OcrReviewViewModel : ViewModelBase
 
     [ObservableProperty] private OcrPageViewModel? _selectedPage;
     [ObservableProperty] private bool _isImportDialogOpen;
+    [ObservableProperty] private bool _isReEditConfirmOpen;
     [ObservableProperty] private string _newTitle = string.Empty;
     [ObservableProperty] private string _newAuthor = string.Empty;
     [ObservableProperty] private string? _errorMessage;
     [ObservableProperty] private bool _isImporting;
+
+    private OcrPageViewModel? _pageRequestingReEdit;
 
     public OcrReviewViewModel(
         ImportMatnFromOcrHandler importHandler,
@@ -47,28 +51,50 @@ public partial class OcrReviewViewModel : ViewModelBase
     [RelayCommand]
     private void ApprovePage(OcrPageViewModel? page)
     {
-        if (page is null) return;
-        page.IsApproved = true;
-        page.Flush();
+        (page ?? SelectedPage)?.TryApprove();
     }
 
     [RelayCommand]
     private void ApproveAll()
     {
-        foreach (var p in Pages)
+        foreach (var p in Pages) p.TryApprove();
+    }
+
+    // Called when user starts typing in the text box for the selected page
+    [RelayCommand]
+    private void RequestEditPage(OcrPageViewModel? page)
+    {
+        var target = page ?? SelectedPage;
+        if (target is null) return;
+
+        if (!target.RequestEdit())
         {
-            p.IsApproved = true;
-            p.Flush();
+            _pageRequestingReEdit = target;
+            IsReEditConfirmOpen = true;
         }
+    }
+
+    [RelayCommand]
+    private void ConfirmReEdit()
+    {
+        _pageRequestingReEdit?.ForceReEdit();
+        _pageRequestingReEdit = null;
+        IsReEditConfirmOpen = false;
+    }
+
+    [RelayCommand]
+    private void CancelReEdit()
+    {
+        _pageRequestingReEdit = null;
+        IsReEditConfirmOpen = false;
     }
 
     [RelayCommand]
     private void OpenImportDialog()
     {
-        // Flush all edits before opening dialog
         foreach (var p in Pages) p.Flush();
 
-        if (!Pages.Any(p => p.IsApproved))
+        if (!Pages.Any(p => p.Status == OcrPageStatus.Approved))
         {
             ErrorMessage = "اعتمد صفحة واحدة على الأقل قبل الحفظ.";
             return;
@@ -92,7 +118,11 @@ public partial class OcrReviewViewModel : ViewModelBase
         IsImporting = true;
         try
         {
-            var approved = Pages.Where(p => p.IsApproved).Select(p => p.Source).ToList();
+            var approved = Pages
+                .Where(p => p.Status == OcrPageStatus.Approved)
+                .Select(p => p.Source)
+                .ToList();
+
             var cmd = new ImportMatnFromOcrCommand(NewTitle, NewAuthor, approved);
             var id = await _importHandler.HandleAsync(cmd, ct);
 

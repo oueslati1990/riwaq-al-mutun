@@ -1,6 +1,8 @@
+using MatnMemorization.Application.Models;
+
 namespace MatnMemorization.Application.Contracts.Ocr;
 
 public interface IOcrService
 {
-    Task<string> RecognizeAsync(byte[] imageBytes, CancellationToken ct = default);
+    Task<OcrResult> RecognizeAsync(byte[] imageBytes, CancellationToken ct = default);
 }
