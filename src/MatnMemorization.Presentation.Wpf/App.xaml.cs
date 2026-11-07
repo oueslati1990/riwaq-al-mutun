@@ -8,6 +8,7 @@ using MatnMemorization.Application.Contracts.UI;
 using MatnMemorization.Application.UseCases.Import;
 using MatnMemorization.Application.UseCases.Matns;
 using MatnMemorization.Application.UseCases.Sections;
+using MatnMemorization.Application.UseCases.Review;
 using MatnMemorization.Application.UseCases.Sessions;
 using MatnMemorization.Application.UseCases.TextUnits;
 using MatnMemorization.Infrastructure.Ocr;
@@ -139,6 +140,7 @@ public partial class App : System.Windows.Application
         services.AddScoped<ImportMatnFromOcrHandler>();
         services.AddScoped<StartSessionHandler>();
         services.AddScoped<RecordAttemptHandler>();
+        services.AddScoped<GetDueUnitsHandler>();
     }
 
     private static void RegisterOcrServices(IServiceCollection services)
