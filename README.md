@@ -4,24 +4,6 @@
 
 ---
 
-## لقطات الشاشة / Screenshots
-
-| لوحة التحكم | المكتبة |
-|---|---|
-| ![Dashboard](docs/screenshots/dashboard.png) | ![Library](docs/screenshots/library.png) |
-
-| جلسة الحفظ | المراجعة اليومية |
-|---|---|
-| ![Memorization](docs/screenshots/memorization.png) | ![Review](docs/screenshots/review.png) |
-
-| الإحصائيات | الإعدادات |
-|---|---|
-| ![Statistics](docs/screenshots/statistics.png) | ![Settings](docs/screenshots/settings.png) |
-
-> **To add screenshots:** run the app on Windows, take screenshots of each screen, and save them to `docs/screenshots/` using the filenames above.
-
----
-
 ## المتطلبات / Prerequisites
 
 | المتطلب | الإصدار |
