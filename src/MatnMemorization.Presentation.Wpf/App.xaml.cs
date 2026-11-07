@@ -10,6 +10,7 @@ using MatnMemorization.Application.UseCases.Matns;
 using MatnMemorization.Application.UseCases.Sections;
 using MatnMemorization.Application.UseCases.Review;
 using MatnMemorization.Application.UseCases.Sessions;
+using MatnMemorization.Application.UseCases.Statistics;
 using MatnMemorization.Application.UseCases.TextUnits;
 using MatnMemorization.Infrastructure.Ocr;
 using MatnMemorization.Infrastructure.Pdf;
@@ -141,6 +142,8 @@ public partial class App : System.Windows.Application
         services.AddScoped<StartSessionHandler>();
         services.AddScoped<RecordAttemptHandler>();
         services.AddScoped<GetDueUnitsHandler>();
+        services.AddScoped<IStatisticsRepository, StatisticsRepository>();
+        services.AddScoped<GetStatisticsHandler>();
     }
 
     private static void RegisterOcrServices(IServiceCollection services)

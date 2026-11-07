@@ -1,12 +1,159 @@
 <UserControl x:Class="MatnMemorization.Presentation.Wpf.Views.StatisticsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             FlowDirection="RightToLeft">
-    <Grid>
-        <TextBlock Text="الإحصاءات"
-                   FontSize="24"
-                   FontFamily="Noto Naskh Arabic, Segoe UI, Arial"
-                   HorizontalAlignment="Center"
-                   VerticalAlignment="Center" />
+             xmlns:vm="clr-namespace:MatnMemorization.Presentation.Wpf.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance vm:StatisticsViewModel}"
+             FlowDirection="RightToLeft"
+             FontFamily="Noto Naskh Arabic, Segoe UI, Arial">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Page title -->
+        <TextBlock Grid.Row="0" Text="الإحصاءات والتقدم"
+                   FontSize="22" FontWeight="Bold" Margin="0,0,0,20" />
+
+        <!-- Loading -->
+        <TextBlock Grid.Row="1" Text="جارٍ التحميل..."
+                   FontSize="16" Foreground="#888"
+                   Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}" />
+
+        <!-- Error -->
+        <TextBlock Grid.Row="1" Text="{Binding ErrorMessage}"
+                   Foreground="Red" FontSize="14"
+                   Visibility="{Binding ErrorMessage, Converter={StaticResource NullToCollapsedConverter}}" />
+
+        <!-- Empty state -->
+        <TextBlock Grid.Row="1"
+                   Text="لا توجد متون بعد. أضف متناً من المكتبة لتبدأ."
+                   FontSize="16" Foreground="#888"
+                   Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}" />
+
+        <!-- Overall stats tiles -->
+        <UniformGrid Grid.Row="2" Rows="1" Margin="0,0,0,24"
+                     Visibility="{Binding Overall, Converter={StaticResource NullToCollapsedConverter}}">
+
+            <Border Background="#E3F2FD" CornerRadius="8" Margin="0,0,8,0" Padding="16,12">
+                <StackPanel>
+                    <TextBlock Text="{Binding Overall.TotalMatns}"
+                               FontSize="32" FontWeight="Bold" Foreground="#1565C0"
+                               HorizontalAlignment="Center" FlowDirection="LeftToRight" />
+                    <TextBlock Text="متن" FontSize="14" Foreground="#555"
+                               HorizontalAlignment="Center" />
+                </StackPanel>
+            </Border>
+
+            <Border Background="#E8F5E9" CornerRadius="8" Margin="4,0" Padding="16,12">
+                <StackPanel>
+                    <TextBlock Text="{Binding Overall.TotalUnits}"
+                               FontSize="32" FontWeight="Bold" Foreground="#2E7D32"
+                               HorizontalAlignment="Center" FlowDirection="LeftToRight" />
+                    <TextBlock Text="بيت" FontSize="14" Foreground="#555"
+                               HorizontalAlignment="Center" />
+                </StackPanel>
+            </Border>
+
+            <Border Background="#FFF8E1" CornerRadius="8" Margin="4,0" Padding="16,12">
+                <StackPanel>
+                    <TextBlock Text="{Binding Overall.StartedUnits}"
+                               FontSize="32" FontWeight="Bold" Foreground="#E65100"
+                               HorizontalAlignment="Center" FlowDirection="LeftToRight" />
+                    <TextBlock Text="محفوظ" FontSize="14" Foreground="#555"
+                               HorizontalAlignment="Center" />
+                </StackPanel>
+            </Border>
+
+            <Border Background="#FCE4EC" CornerRadius="8" Margin="4,0" Padding="16,12">
+                <StackPanel>
+                    <TextBlock Text="{Binding Overall.DueTodayCount}"
+                               FontSize="32" FontWeight="Bold" Foreground="#C62828"
+                               HorizontalAlignment="Center" FlowDirection="LeftToRight" />
+                    <TextBlock Text="مستحق اليوم" FontSize="14" Foreground="#555"
+                               HorizontalAlignment="Center" />
+                </StackPanel>
+            </Border>
+
+            <Border Background="#F3E5F5" CornerRadius="8" Margin="8,0,0,0" Padding="16,12">
+                <StackPanel>
+                    <TextBlock Text="{Binding Overall.TotalReviews}"
+                               FontSize="32" FontWeight="Bold" Foreground="#6A1B9A"
+                               HorizontalAlignment="Center" FlowDirection="LeftToRight" />
+                    <TextBlock Text="مراجعة" FontSize="14" Foreground="#555"
+                               HorizontalAlignment="Center" />
+                </StackPanel>
+            </Border>
+        </UniformGrid>
+
+        <!-- Per-Matn list -->
+        <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto">
+            <ItemsControl ItemsSource="{Binding MatnStats}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Background="White" CornerRadius="8"
+                                BorderBrush="#E0E0E0" BorderThickness="1"
+                                Padding="16,12" Margin="0,0,0,10">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Title + Author -->
+                                <StackPanel Grid.Row="0" Grid.Column="0">
+                                    <TextBlock Text="{Binding Title}"
+                                               FontSize="16" FontWeight="SemiBold" />
+                                    <TextBlock Text="{Binding Author}"
+                                               FontSize="13" Foreground="#666"
+                                               Visibility="{Binding Author, Converter={StaticResource NullToCollapsedConverter}}" />
+                                </StackPanel>
+
+                                <!-- Due badge -->
+                                <Border Grid.Row="0" Grid.Column="1"
+                                        Background="#C62828" CornerRadius="12"
+                                        Padding="10,3" VerticalAlignment="Top"
+                                        Visibility="{Binding DueTodayCount,
+                                                     Converter={StaticResource NullToCollapsedConverter}}">
+                                    <TextBlock Foreground="White" FontSize="12"
+                                               FlowDirection="LeftToRight">
+                                        <Run Text="{Binding DueTodayCount}" />
+                                        <Run Text=" مستحق" />
+                                    </TextBlock>
+                                </Border>
+
+                                <!-- Progress bar -->
+                                <ProgressBar Grid.Row="1" Grid.ColumnSpan="2"
+                                             Height="6" Margin="0,10,0,6"
+                                             Minimum="0" Maximum="100"
+                                             Value="{Binding CompletionPercent}" />
+
+                                <!-- Counts text -->
+                                <TextBlock Grid.Row="2" Grid.ColumnSpan="2"
+                                           FontSize="12" Foreground="#777"
+                                           FlowDirection="LeftToRight">
+                                    <Run Text="{Binding StartedUnits}" />
+                                    <Run Text=" / " />
+                                    <Run Text="{Binding TotalUnits}" />
+                                    <Run Text=" بيت  •  " />
+                                    <Run Text="{Binding CompletionPercent}" />
+                                    <Run Text="%" />
+                                </TextBlock>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
     </Grid>
 </UserControl>
