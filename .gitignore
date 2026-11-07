@@ -36,6 +36,6 @@ Thumbs.db
 .specify/.cache/
 
 # Tesseract trained data (large binaries — download separately)
-tessdata/*.traineddata
+**/tessdata/*.traineddata
 # Pdfium native DLLs (shipped by Docnet.Core NuGet)
 *.pdfium*
