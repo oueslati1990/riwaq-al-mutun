@@ -1,12 +1,132 @@
 <UserControl x:Class="MatnMemorization.Presentation.Wpf.Views.MatnDetailView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             FlowDirection="RightToLeft">
-    <Grid>
-        <TextBlock Text="تفاصيل المتن"
-                   FontSize="24"
-                   FontFamily="Noto Naskh Arabic, Segoe UI, Arial"
-                   HorizontalAlignment="Center"
-                   VerticalAlignment="Center" />
+             xmlns:vm="clr-namespace:MatnMemorization.Presentation.Wpf.ViewModels"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance vm:MatnDetailViewModel}"
+             FlowDirection="RightToLeft"
+             FontFamily="Noto Naskh Arabic, Segoe UI, Arial">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Grid Grid.Row="0" Margin="0,0,0,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0">
+                <TextBlock Text="{Binding Matn.Title}" FontSize="22" FontWeight="Bold" />
+                <TextBlock Text="{Binding Matn.Author}" FontSize="14" Foreground="#666" />
+            </StackPanel>
+            <Button Grid.Column="1"
+                    Content="+ إضافة باب"
+                    Command="{Binding OpenAddSectionCommand}"
+                    Padding="12,6" FontSize="14" VerticalAlignment="Top" />
+        </Grid>
+
+        <!-- Error -->
+        <TextBlock Grid.Row="1"
+                   Text="{Binding ErrorMessage}"
+                   Foreground="Red"
+                   Visibility="{Binding ErrorMessage, Converter={StaticResource NullToCollapsedConverter}}"
+                   Margin="0,0,0,4" />
+
+        <!-- Sections list -->
+        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+            <ItemsControl ItemsSource="{Binding Matn.Sections}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border BorderBrush="#DDDDDD" BorderThickness="1" CornerRadius="4" Margin="0,0,0,12">
+                            <StackPanel>
+                                <!-- Section header -->
+                                <Grid Background="#F5F5F5" Margin="12,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0"
+                                               Text="{Binding Title}"
+                                               FontSize="17" FontWeight="SemiBold" />
+                                    <Button Grid.Column="1"
+                                            Content="+ بيت"
+                                            Command="{Binding DataContext.OpenAddUnitCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                            CommandParameter="{Binding}"
+                                            Padding="8,4" FontSize="13" />
+                                </Grid>
+                                <!-- Text units -->
+                                <ItemsControl ItemsSource="{Binding TextUnits}" Margin="12,4,12,8">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Content}"
+                                                       FontSize="16"
+                                                       TextWrapping="Wrap"
+                                                       Margin="0,3"
+                                                       LineHeight="28" />
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
+        <!-- Loading -->
+        <TextBlock Grid.Row="3"
+                   Text="جارٍ التحميل..."
+                   Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}"
+                   Margin="0,4,0,0" />
+
+        <!-- Add section dialog -->
+        <Grid Grid.RowSpan="4"
+              Visibility="{Binding IsAddSectionOpen, Converter={StaticResource BoolToVisibilityConverter}}"
+              Background="#80000000">
+            <Border Background="White" CornerRadius="8" Padding="24"
+                    MaxWidth="380" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <StackPanel>
+                    <TextBlock Text="إضافة باب" FontSize="18" FontWeight="Bold" Margin="0,0,0,16" />
+                    <TextBlock Text="عنوان الباب *" Margin="0,0,0,4" />
+                    <TextBox Text="{Binding NewSectionTitle, UpdateSourceTrigger=PropertyChanged}"
+                             FontSize="15" Padding="6,4" Margin="0,0,0,16" />
+                    <StackPanel Orientation="Horizontal">
+                        <Button Content="حفظ" Command="{Binding ConfirmAddSectionCommand}" Padding="16,8" Margin="0,0,8,0" />
+                        <Button Content="إلغاء" Command="{Binding CancelAddSectionCommand}" Padding="16,8" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- Add text unit dialog -->
+        <Grid Grid.RowSpan="4"
+              Visibility="{Binding IsAddUnitOpen, Converter={StaticResource BoolToVisibilityConverter}}"
+              Background="#80000000">
+            <Border Background="White" CornerRadius="8" Padding="24"
+                    MaxWidth="480" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <StackPanel>
+                    <TextBlock Text="إضافة بيت أو مقطع" FontSize="18" FontWeight="Bold" Margin="0,0,0,16" />
+                    <TextBox Text="{Binding NewUnitContent, UpdateSourceTrigger=PropertyChanged}"
+                             FontSize="16"
+                             AcceptsReturn="True"
+                             TextWrapping="Wrap"
+                             MinHeight="80"
+                             Padding="6,4"
+                             Margin="0,0,0,16" />
+                    <StackPanel Orientation="Horizontal">
+                        <Button Content="حفظ" Command="{Binding ConfirmAddUnitCommand}" Padding="16,8" Margin="0,0,8,0" />
+                        <Button Content="إلغاء" Command="{Binding CancelAddUnitCommand}" Padding="16,8" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Grid>
     </Grid>
 </UserControl>

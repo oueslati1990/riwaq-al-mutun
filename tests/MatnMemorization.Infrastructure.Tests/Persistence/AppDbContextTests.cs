@@ -19,7 +19,7 @@ public class AppDbContextTests
     }
 
     [Fact]
-    public void CanSaveAndRetrieveData_WhenModelIsEmpty()
+    public void ModelContainsExpectedEntityTypes()
     {
         var options = new DbContextOptionsBuilder<AppDbContext>()
             .UseInMemoryDatabase("TestDb_" + Guid.NewGuid())
@@ -27,8 +27,9 @@ public class AppDbContextTests
 
         using var db = new AppDbContext(options);
 
-        // No entities yet — just verify context is usable
-        db.Database.EnsureCreated();
-        Assert.Empty(db.Model.GetEntityTypes());
+        var entityNames = db.Model.GetEntityTypes().Select(e => e.ClrType.Name).ToHashSet();
+        Assert.Contains("Matn", entityNames);
+        Assert.Contains("MatnSection", entityNames);
+        Assert.Contains("TextUnit", entityNames);
     }
 }

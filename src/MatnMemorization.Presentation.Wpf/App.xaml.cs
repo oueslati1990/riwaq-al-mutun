@@ -1,7 +1,13 @@
 ﻿using System.IO;
 using System.Windows;
 using MatnMemorization.Application.Contracts.Navigation;
+using MatnMemorization.Application.Contracts.Repositories;
+using MatnMemorization.Application.UseCases.Matns;
+using MatnMemorization.Application.UseCases.Sections;
+using MatnMemorization.Application.UseCases.TextUnits;
 using MatnMemorization.Infrastructure.Persistence;
+using MatnMemorization.Infrastructure.Persistence.Repositories;
+using MatnMemorization.Presentation.Wpf.Services;
 using MatnMemorization.Presentation.Wpf.Services.Navigation;
 using MatnMemorization.Presentation.Wpf.ViewModels;
 using MatnMemorization.Presentation.Wpf.Views;
@@ -50,6 +56,7 @@ public partial class App : System.Windows.Application
                 var connectionString = $"Data Source={Path.Combine(dataDir, dbFileName)}";
 
                 services.AddDbContext<AppDbContext>(o => o.UseSqlite(connectionString));
+                RegisterRepositories(services);
                 RegisterViewModels(services);
                 RegisterViews(services);
                 RegisterNavigation(services);
@@ -108,8 +115,23 @@ public partial class App : System.Windows.Application
         services.AddTransient<SettingsView>();
     }
 
+    private static void RegisterRepositories(IServiceCollection services)
+    {
+        services.AddScoped<IMatnRepository, MatnRepository>();
+        services.AddScoped<IMatnSectionRepository, MatnSectionRepository>();
+        services.AddScoped<ITextUnitRepository, TextUnitRepository>();
+        services.AddScoped<CreateMatnHandler>();
+        services.AddScoped<UpdateMatnHandler>();
+        services.AddScoped<SoftDeleteMatnHandler>();
+        services.AddScoped<GetMatnListHandler>();
+        services.AddScoped<GetMatnDetailHandler>();
+        services.AddScoped<AddSectionHandler>();
+        services.AddScoped<AddTextUnitHandler>();
+    }
+
     private static void RegisterNavigation(IServiceCollection services)
     {
+        services.AddSingleton<MatnSelectionService>();
         services.AddSingleton<NavigationService>();
         services.AddSingleton<INavigationService>(sp => sp.GetRequiredService<NavigationService>());
     }
