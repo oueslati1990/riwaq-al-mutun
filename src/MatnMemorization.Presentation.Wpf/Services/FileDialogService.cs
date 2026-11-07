@@ -17,4 +17,16 @@ public sealed class FileDialogService : IFileDialogService
         };
         return dialog.ShowDialog() == true ? dialog.FileName : null;
     }
+
+    public string? SaveFile(string filter, string defaultFileName = "", string title = "")
+    {
+        var dialog = new SaveFileDialog
+        {
+            Filter = filter,
+            FileName = defaultFileName,
+            Title = title,
+            OverwritePrompt = true
+        };
+        return dialog.ShowDialog() == true ? dialog.FileName : null;
+    }
 }

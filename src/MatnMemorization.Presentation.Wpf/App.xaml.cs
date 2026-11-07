@@ -8,10 +8,13 @@ using MatnMemorization.Application.Contracts.UI;
 using MatnMemorization.Application.UseCases.Import;
 using MatnMemorization.Application.UseCases.Matns;
 using MatnMemorization.Application.UseCases.Sections;
+using MatnMemorization.Application.UseCases.Backup;
 using MatnMemorization.Application.UseCases.Review;
 using MatnMemorization.Application.UseCases.Sessions;
 using MatnMemorization.Application.UseCases.Statistics;
 using MatnMemorization.Application.UseCases.TextUnits;
+using MatnMemorization.Application.Contracts.Services;
+using MatnMemorization.Infrastructure.Backup;
 using MatnMemorization.Infrastructure.Ocr;
 using MatnMemorization.Infrastructure.Pdf;
 using MatnMemorization.Infrastructure.Persistence;
@@ -62,8 +65,10 @@ public partial class App : System.Windows.Application
                 Directory.CreateDirectory(dataDir);
 
                 var dbFileName = ctx.Configuration["Database:FileName"] ?? "matn.db";
-                var connectionString = $"Data Source={Path.Combine(dataDir, dbFileName)}";
+                var dbPath = Path.Combine(dataDir, dbFileName);
+                var connectionString = $"Data Source={dbPath}";
 
+                services.Configure<BackupOptions>(opts => opts.DatabasePath = dbPath);
                 services.AddDbContext<AppDbContext>(o => o.UseSqlite(connectionString));
                 RegisterRepositories(services);
                 RegisterOcrServices(services);
@@ -144,6 +149,9 @@ public partial class App : System.Windows.Application
         services.AddScoped<GetDueUnitsHandler>();
         services.AddScoped<IStatisticsRepository, StatisticsRepository>();
         services.AddScoped<GetStatisticsHandler>();
+        services.AddScoped<IBackupService, BackupService>();
+        services.AddScoped<CreateBackupHandler>();
+        services.AddScoped<RestoreBackupHandler>();
     }
 
     private static void RegisterOcrServices(IServiceCollection services)
